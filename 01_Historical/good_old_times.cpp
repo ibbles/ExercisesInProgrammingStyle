@@ -4,9 +4,36 @@
 
 /*
 Good Old Times
-
 - Very small amount of memory, much less than the size of the data.
 - No identifiers, only tagged memory addresses.
+
+I did not finish this one. The Python implementation presented in the book takes
+several shortcuts with regards to the memory restrictions, and I simply worked
+around the no identifiers constraint by naming constraints and using getter
+functions. A true no identifiers implementation is more work than I'm willing to
+put into this. Perhaps I'll get back to this later.
+
+When reading the chapter title and the constraints description I expected a more
+assembly-like linear memory implementation, which is what I started out
+implementing, but the Python code is not that.
+
+Despite the criticism of the example code, I fully agree with the sentiment of
+the chapter. Perhaps more so with regards to the limited amount of memory rather
+than the lack of identifiers, which is just masochistic. It seems that as
+computing power and available memory increase, there is always some use case
+creeping up from below, finding utility in cheap, small, or otherwise
+constrained general purpose devices. For a while it was video game consoles,
+then smart phones, and now we have fully-fledged computers in our wrist watches
+and classes. Limited memory devices that rely on secondary storage not from a
+hard drive or SSD, but via some kind of network connection to a phone, nearby
+computer or even a cloude based platform. The example the book uses, that of big
+data processing, is also a good example of cases where the available memory,
+despite being vast, is indeed limited.
+
+I think the no identifiers requirement is mainly about making the reader consider
+and reflect on the value of good names for a while. This is one of the hard
+problems in computing science and on that I don't expect to be solved in general
+any time soon.
 */
 
 
@@ -18,7 +45,7 @@ namespace memory {
     // Gives the address in memory where line data starts.
     // The index of line start will always be 13.
     const int LINE_START{0};
-    // [4-7] Index of char_start of word.
+    // [4-7] Index of start_char of word.
     // Gives the address in memory where the current word in the line starts.
     const int WORD_START{4};
     // [8-11] Index on characters.
@@ -142,6 +169,7 @@ read_line() {
     memory::write(0, memory::read<int>(memory::LINE_START) + n);
 }
 
+extern bool todo_bool();
 
 int
 main() {
@@ -152,7 +180,60 @@ main() {
     while (true) {
         read_line();
         if (memory::read<char>(memory::read<int>(memory::LINE_START)) == 0) {
+            // End of input file.
             break;
+        }
+        memory::write(-1, memory::WORD_START);
+        memory::write(0, memory::CHAR_INDEX);
+        char c = 1; // Just anything non-zero.
+
+        // Loop over characters in the line. Line start is pointed to by LINE_START,
+        // and the line ends with a terminating 0.
+        for (auto i = memory::read<int>(memory::LINE_START); c != 0; i++) {
+            c = memory::read<char>(i);
+            if (memory::read(memory::WORD_START) == -1) {
+                if (isalnum(c)) {
+                    // We found the start of a word.
+                    memory::write(memory::read<int>(memory::CHAR_INDEX), memory::WORD_START);
+                }
+            } else {
+                if (!isalnum(c)) {
+                    // We found the end of a word. Process it.
+                    // \todo Code here.
+                    if (todo_bool() /* Word is long && Word not in stop words. */) {
+                        // Lets see if it already exists.
+                        while (true) {
+                            /// \todo Read a line from word_freqs.
+                            if (todo_bool() /* No more lines in word_freqs*/) {
+                                break;
+                            }
+                            /// \todo Read freq from word_freq line.
+                            /// \todo Read word from word_freq line.
+                            if (true /* word == word */) {
+                                /// \todo Increment freq.
+                                /// \todo Set FOUND_WORD flag.
+                                memory::write(1, memory::FOUND_WORD);
+                                break;
+                            }
+                        }
+
+                        if (!memory::read<int>(memory::FOUND_WORD)) {
+                            /// \todo Write a new line to word_freq with word and 1.
+                        } else {
+                            /// \todo Overwrite word_freq line with word and incremented freq.
+                            /// \todo Each line formatted so that the word field
+                            ///       is 20 characters wide and the freq 4 wide.
+                            ///       This makes the entire line 26 characters.
+                            ///       20 + 1 + 4 + 1 where the two ones are ','
+                            ///       and '\n'.
+                        }
+                        /// \todo Seek back to beginning of word_freq for next iteration.
+                    }
+                    // Let's reset.
+                    /// \todo Set start_char to 0.
+                }
+                /// \todo Increment CHAR_INDEX.
+            }
         }
         ++num_lines;
     }
