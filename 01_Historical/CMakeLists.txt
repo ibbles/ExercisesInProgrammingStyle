@@ -3,3 +3,6 @@ project("01_Historical")
 
 add_executable("good_old_times"
         good_old_times.cpp)
+
+add_executable("go_forth"
+        go_forth.cpp)
